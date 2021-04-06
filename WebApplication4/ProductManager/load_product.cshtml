@@ -1,0 +1,26 @@
+﻿@using WebMatrix.Data;
+@{
+    string output = "";
+    //B
+    var price = Request.Form["price"];
+    var db = Database.Open("stockDB");
+    var sql = "SELECT product.id, product.name, price, category.name as category,image FROM product, category WHERE product.category = category.id AND product.price < @0 ORDER BY price ASC";
+    var data = db.Query(sql,price);
+
+    foreach (var row in data)
+    {
+        output += "<div  class='col-md-3'>";
+        output += "<div class='card'>";
+        output += "<img class='w-100' style='max-height:171px; object-fit:cover;' src='./image/" + @row["image"] + "'/>";
+        output += "<div class='card-body text-center'>";
+        output += "<h3 style='font-weight:bold'>" + @row["name"] + "</h3>";
+        output += "<h4 class='text-danger'> " + string.Format("{0:C}",row["price"]) + "</h4>";
+        output += "<p>ประเภท : " + @row["category"] + "</p>";
+        output += "</div>";
+        output += "</div>";
+        output += "</div>";
+    }
+    Response.Write(output);
+
+
+}

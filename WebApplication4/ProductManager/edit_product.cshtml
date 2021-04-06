@@ -1,0 +1,104 @@
+﻿<html lang="en">
+@using WebMatrix.Data;
+@{
+    var db = Database.Open("stockDB");
+    WebImage photo = null;
+    var newFileName = "";
+    var imagePath = "";
+    var id = Request.QueryString["id"];
+    var sql = "SELECT * FROM product WHERE id=@0";
+    var row = db.QuerySingle(sql, id);
+
+    if (IsPost)
+    {
+        photo = WebImage.GetImageFromRequest();
+        if (photo != null)
+        {
+            newFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(photo.FileName);
+            imagePath = @"\ProductManager\image\" + newFileName;
+            photo.Save(@"~\" + imagePath);
+
+            var name = Request.Form["name"];
+            var price = Request.Form["price"];
+            var category = Request.Form["category"];
+            var update = "UPDATE product SET name=@0, price=@1, category=@2, image=@3 WHERE id=@4";
+            db.Execute(update, name, price, category, newFileName, id);
+            <script>
+                alert("แก้ไขข้อมูลสำเร็จ");
+            </script>
+        }
+        else
+        {
+            var name = Request.Form["name"];
+            var price = Request.Form["price"];
+            var category = Request.Form["category"];
+            var update = "UPDATE product SET name=@0, price=@1, category=@2 WHERE id=@3";
+            db.Execute(update, name, price, category, id);
+            <script>
+                alert("แก้ไขข้อมูลสำเร็จ");
+            </script>
+        }
+
+        Response.Redirect("index.cshtml");
+
+    }
+}
+
+
+<head>
+    <title>แก้ไขข้อมูล</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js"
+            integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous">
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card p-3 my-3">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="usr">ชื่อสินค้า : </label>
+                            <input type="text" class="form-control" autocomplete="off" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="">ราคาสินค้า : </label>
+                            <input type="number" min="30" max="500" value="@row["price"]" class="form-control" name="price">
+                        </div>
+                        <div class="form-group">
+                            <label for="">ประเภทสินค้า : </label>
+                            @{
+                                var data = db.Query("SELECT * FROM category");
+                            }
+                            <select class="form-control" name="category">
+                                @foreach (var x in data)
+                                {
+                                    <option value="@x["id"]">@x["name"]</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="">ภาพสินค้า : </label>
+                            <input type="file" name="image" id="" class="form-control">
+                        </div>
+                        <div class="form-group py-3">
+                            <button class="btn btn-warning mr-3">
+                                แก้ไขสินค้า
+                            </button>
+                            <button class="btn btn-secondary">
+                                <a style="color:white!important;text-decoration:none!important;" href="~/index.cshtml">
+                                    ยกเลิก
+                                </a>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

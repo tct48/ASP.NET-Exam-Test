@@ -1,0 +1,22 @@
+﻿@using WebMatrix.Data;
+@{ 
+    var db = Database.Open("stockDB");
+    var id = Request.QueryString["id"];
+    var sql = "DELETE FROM product WHERE id=@0";
+    db.Execute(sql, id);
+    <script>
+        alert("ลบข้อมูลสำเร็จ");
+    </script>
+    Response.Redirect("index.cshtml"); 
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div>
+    
+    </div>
+</body>
+</html>
